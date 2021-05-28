@@ -63,10 +63,15 @@ public:
             return node->next;
         }
 
+        int Get_id_node(){
+            return node->id;
+        }
+
         //methods
         Nodes* Split(Iterator& cur, const std::string& str, const int& index, int& globalID){
             Nodes* next = new Nodes(globalID, str[index]);
             node->next.insert(std::pair<char,Nodes*>(str[index],next));
+            node->leaf = false;
 
             return next;
         }
@@ -80,25 +85,52 @@ public:
     };
 //-----------end of iterator-----------
 
-
-
-public:
-    Trie(){
-        root = new Nodes(GLOB_ID);
-    }
-    //methods
+private:
     void Print(Iterator node, int i){
         if(node.Is_leaf()){
             node.Print_node(i);
             return;
         }
 
+        node.Print_node(i);
         for(const auto& item : node.Get_map()){
             Iterator tmp(item.second);
-            node.Print_node(i);
             Print(tmp, i+1);
         }
     }
+    void Deleter(Nodes* node){
+        if(node->leaf){
+            delete node;
+            return;
+        }
+
+        for (auto& item : node->next){
+            Deleter(item.second);
+        }
+        delete node;
+    }
+
+
+public:
+    Trie(){
+        root = new Nodes(GLOB_ID);
+    }
+    ~Trie(){
+        Deleter(root);
+    }
+    //methods
+    void Print(){
+        Iterator node(root);
+        if(node.Is_leaf()){
+            return;
+        }
+
+        for(const auto& item : node.Get_map()){
+            Iterator tmp(item.second);
+            Print(tmp, 0);
+        }
+    }
+
 
     void Insert(const std::string& str){
         Iterator node(root);
@@ -117,12 +149,12 @@ public:
         for (int i = 0; i < str.length(); ++i) {
             auto next = node.Get_next(str[i]);
             if(next == nullptr){
-                return false;
+                return -1;
             }
             node = next;
         }
 
-        return true;
+        return node.Get_id_node();
     }
 
 };
