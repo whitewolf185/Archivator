@@ -6,7 +6,7 @@
 
 class Trie {
 private:
-    int GLOB_ID = 0;
+    int GLOB_ID = -1;
     struct Nodes{
        char key;
        int id;
@@ -38,7 +38,7 @@ public:
         }
         ~Iterator(){}
 
-        //getters
+        //getters/setters
         char Get_key() const{
             return node->key;
         }
@@ -67,10 +67,22 @@ public:
             return node->id;
         }
 
+        void Set_true(){
+            node->leaf = true;
+        }
+
         //methods
         Nodes* Split(Iterator& cur, const std::string& str, const int& index, int& globalID){
             Nodes* next = new Nodes(globalID, str[index]);
             node->next.insert(std::pair<char,Nodes*>(str[index],next));
+            node->leaf = false;
+
+            return next;
+        }
+
+        Nodes* Split(Iterator& cur, const char& c, int& globalID){
+            Nodes* next = new Nodes(globalID, c);
+            node->next.insert(std::pair<char,Nodes*>(c,next));
             node->leaf = false;
 
             return next;
@@ -87,7 +99,7 @@ public:
 
 private:
     void Print(Iterator node, int i){
-        if(node.Is_leaf()){
+        if(node.Get_map().empty()){
             node.Print_node(i);
             return;
         }
@@ -99,7 +111,7 @@ private:
         }
     }
     void Deleter(Nodes* node){
-        if(node->leaf){
+        if(node->next.empty()){
             delete node;
             return;
         }
@@ -121,7 +133,7 @@ public:
     //methods
     void Print(){
         Iterator node(root);
-        if(node.Is_leaf()){
+        if(node.Get_map().empty()){
             return;
         }
 
@@ -141,6 +153,16 @@ public:
             }
             node = next;
         }
+        node.Set_true();
+    }
+
+    void Insert(const char& c){
+        Iterator node(root);
+        auto next = node.Get_next(c);
+        if(next == nullptr){
+            node.Split(node,c,GLOB_ID);
+        }
+        node.Set_true();
     }
 
     
@@ -157,6 +179,16 @@ public:
         return node.Get_id_node();
     }
 
+    int Find(const char& str){
+        Iterator node(root);
+        auto next = node.Get_next(str);
+        if(next == nullptr){
+            return -1;
+        }
+        node = next;
+
+        return node.Get_id_node();
+    }
 };
 
 
