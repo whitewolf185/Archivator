@@ -13,26 +13,21 @@ int main() {
             dictionary.Insert(c);
         }
         dictionary.Insert(EOM);
-
-        std::string str;
-        std::cin >> str;
-
-        std::string iteration;
-        int prev = 0;
-        for (int i = 0; i < str.length(); ++i) {
-            iteration += str[i];
-            int finder = dictionary.Find(iteration);
-            if(finder >= 0){
-                prev = finder;
-                continue;
+        Trie::Iterator iteration(dictionary.Get_root());
+        char str;
+        while(std::cin >> str) {
+            auto tmp = iteration.Get_next(str);
+            if(tmp == nullptr){
+                std::cout << iteration.Get_id_node() << ' ';
+                iteration.Split(str,dictionary.Get_GlobID());
+                iteration = dictionary.Get_root();
+                iteration = iteration.Get_next(str);
             }
-            std::cout << prev << ' ';
-            dictionary.Insert(iteration);
-            iteration = str[i];
-            prev = dictionary.Find(iteration);
+            else{
+                iteration = tmp;
+            }
         }
-
-        std::cout << prev << ' ' << dictionary.Find(EOM) << std::endl;
+        std::cout << iteration.Get_id_node() << ' ' << dictionary.Find(EOM) << std::endl;
     }
 
     else if(command == "decompress"){
@@ -65,8 +60,10 @@ int main() {
 
                 else{
                     auto tmp = dictionary.at(prev);
-                    std::cout << tmp + tmp[0];
-                    dictionary.insert(std::pair<int, std::string> (globID++, tmp + tmp[0]));
+                    tmp += tmp[0];
+                    std::cout << tmp;
+                    prev = globID;
+                    dictionary.insert(std::pair<int, std::string> (globID++, tmp));
                 }
             }
         }
@@ -77,5 +74,3 @@ int main() {
         std::cerr << "Wrong command" << std::endl;
     }
 }
-//0 19 1 21 0 12 8 13 10 18 4 7 12 5 5 9 23 8 8 15 24 7 0 6 19 23 22 12 6 8 2 11 17 0 11 3 24 36 9 16 3 3 17 19 25 13 15 3 25 11 8 43 18 3 23 5 22 1 13 14 10 24 3 8 25 21 2 18 5 7 21 24 10 13 22 20 5 4 37 0 26
-//0 19 1 21 0 12 8 13 10 18 4 7 12 5 5 9 23 8 8 15 24 7 0 6 19 23 22 12 6 8 2 11 17 0 11 3 24 36 9 16 3 3 17 19 25 13 15 3 25 11 8 43 18 3 23 5 22 1 13 14 10 24 3 8 25 21 2 18 5 7 21 24 10 13 22 20 5 4 37 0 26

@@ -3,4 +3,4 @@ project(Archivator)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(Archivator main.cpp Trie.h)
+add_executable(LZW main.cpp Trie.h)

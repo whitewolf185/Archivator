@@ -35,6 +35,7 @@ public:
     public:
         Iterator(Nodes* _node){
             node = _node;
+
         }
         ~Iterator(){}
 
@@ -72,7 +73,7 @@ public:
         }
 
         //methods
-        Nodes* Split(Iterator& cur, const std::string& str, const int& index, int& globalID){
+        Nodes* Split(const std::string& str, const int& index, int& globalID){
             Nodes* next = new Nodes(globalID, str[index]);
             node->next.insert(std::pair<char,Nodes*>(str[index],next));
             node->leaf = false;
@@ -80,7 +81,7 @@ public:
             return next;
         }
 
-        Nodes* Split(Iterator& cur, const char& c, int& globalID){
+        Nodes* Split(const char& c, int& globalID){
             Nodes* next = new Nodes(globalID, c);
             node->next.insert(std::pair<char,Nodes*>(c,next));
             node->leaf = false;
@@ -130,6 +131,11 @@ public:
     ~Trie(){
         Deleter(root);
     }
+
+    int& Get_GlobID(){
+        return GLOB_ID;
+    }
+
     //methods
     void Print(){
         Iterator node(root);
@@ -149,7 +155,7 @@ public:
         for (int i = 0; i < str.length(); ++i) {
             auto next = node.Get_next(str[i]);
             if(next == nullptr){
-                next = node.Split(node, str,i, GLOB_ID);
+                next = node.Split(str,i, GLOB_ID);
             }
             node = next;
         }
@@ -160,7 +166,7 @@ public:
         Iterator node(root);
         auto next = node.Get_next(c);
         if(next == nullptr){
-            node.Split(node,c,GLOB_ID);
+            node.Split(c,GLOB_ID);
         }
         node.Set_true();
     }
@@ -188,6 +194,10 @@ public:
         node = next;
 
         return node.Get_id_node();
+    }
+
+    Nodes* Get_root(){
+        return root;
     }
 };
 
