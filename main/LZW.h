@@ -6,6 +6,19 @@
 
 class LZW {
 private:
+    struct Settings{
+        enum Block_sizes{
+            mb512,
+            gb,
+            gb2,
+            Full
+        };
+
+        Block_sizes block_size = mb512;
+        bool write_output_into_stdout = false;
+        bool donot_delete = false;
+
+    };
     std::set<unsigned char> alphabet;
 
     void compr(const std::string& str){
