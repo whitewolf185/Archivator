@@ -1,11 +1,23 @@
-//#include "LZW.h"
-#include <iostream>
-#include <fstream>
-int main(int argc, char* argv[]){
-    std::ofstream fout;
-    fout.open("test.txt");
-    fout << 'a' << 'b' << 'c' << EOF << 'd' << 'e';
-    fout.close();
+#include "LZW.h"
 
+struct Block{
+    unsigned long long info = 0;
+    char count = 0;
+
+    void Clear(){
+        info = 0;
+        count = 0;
+    }
+};
+
+
+
+int main(int argc, char* argv[]){
+
+    LZW test("4.jpg");
+
+    test.Compress();
+
+    test.Decompress("out.bin", "out.jpg");
     return 0;
 }

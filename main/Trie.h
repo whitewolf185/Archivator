@@ -4,24 +4,23 @@
 #include <string>
 #include <map>
 
-
 class Trie {
 private:
-    int GLOB_ID = -1;
+    unsigned long long GLOB_ID = 0;
     struct Nodes{
-       unsigned char key;
-       int id;
-       std::map<unsigned char,Nodes*> next;
-       bool leaf = true;
+        unsigned char key;
+        int id;
+        std::map<unsigned char,Nodes*> next;
+        bool leaf = true;
 
-       Nodes(int& globID, const unsigned char& c){
-           id = globID++;
-           key = c;
-       }
+        Nodes(unsigned long long& globID, const unsigned char& c){
+            id = globID++;
+            key = c;
+        }
 
-       Nodes(int& globID){
-           id = globID++;
-       }
+        Nodes(unsigned long long& globID){
+            id = globID++;
+        }
 
     };
 
@@ -36,6 +35,7 @@ public:
     public:
         Iterator(Nodes* _node){
             node = _node;
+
         }
         ~Iterator(){}
 
@@ -73,7 +73,7 @@ public:
         }
 
         //methods
-        Nodes* Split(Iterator& cur, const std::string& str, const int& index, int& globalID){
+        Nodes* Split(const std::string& str, const int& index, unsigned long long& globalID){
             Nodes* next = new Nodes(globalID, str[index]);
             node->next.insert(std::pair<unsigned char,Nodes*>(str[index],next));
             node->leaf = false;
@@ -81,7 +81,7 @@ public:
             return next;
         }
 
-        Nodes* Split(Iterator& cur, const unsigned char& c, int& globalID){
+        Nodes* Split(const unsigned char& c, unsigned long long& globalID){
             Nodes* next = new Nodes(globalID, c);
             node->next.insert(std::pair<unsigned char,Nodes*>(c,next));
             node->leaf = false;
@@ -123,6 +123,18 @@ private:
         delete node;
     }
 
+    void Clear(Nodes* node){
+        if(node->next.empty()){
+            delete node;
+            return;
+        }
+        for (auto& item : node->next){
+            Clear(item.second);
+        }
+
+        delete node;
+    }
+
 
 public:
     Trie(){
@@ -131,6 +143,11 @@ public:
     ~Trie(){
         Deleter(root);
     }
+
+    unsigned long long& Get_GlobID(){
+        return GLOB_ID;
+    }
+
     //methods
     void Print(){
         Iterator node(root);
@@ -150,7 +167,7 @@ public:
         for (int i = 0; i < str.length(); ++i) {
             auto next = node.Get_next(str[i]);
             if(next == nullptr){
-                next = node.Split(node, str,i, GLOB_ID);
+                next = node.Split(str,i, GLOB_ID);
             }
             node = next;
         }
@@ -161,12 +178,12 @@ public:
         Iterator node(root);
         auto next = node.Get_next(c);
         if(next == nullptr){
-            node.Split(node,c,GLOB_ID);
+            node.Split(c,GLOB_ID);
         }
         node.Set_true();
     }
 
-    
+
     int Find(const std::string& str){
         Iterator node(root);
         for (int i = 0; i < str.length(); ++i) {
@@ -189,6 +206,18 @@ public:
         node = next;
 
         return node.Get_id_node();
+    }
+
+    Nodes* Get_root(){
+        return root;
+    }
+
+    void Clear(){
+        for(auto& item : root->next){
+            for (auto& item2 : item.second->next){
+                Clear(item2.second);
+            }
+        }
     }
 };
 
