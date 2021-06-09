@@ -4,9 +4,10 @@
 int main(int argc, char* argv[]){
 
     LZW test("a.mp4");
+    Huffman huff("out.bin");
+    test.Compress();
+    huff.Compress("res.bin");
 
-//    test.Compress();
-
-    test.Decompress("out.bin", "out.mp4");
+//    test.Decompress("out.bin", "out.mp4");
     return 0;
 }

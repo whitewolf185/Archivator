@@ -153,6 +153,10 @@ private:
     }
 
     void Rebuild_tree(int index){
+        if(index == 0){
+            return;
+        }
+
         int parent = root_array[index].parent;
         ++root_array[parent].value;
 
@@ -161,7 +165,20 @@ private:
              *Затем меняю местами элемент справа от найденного и мой
              * ссылки на родителей меняются
              * дети - остаются прежними*/
+            index = parent - 1;
+            while(index >= 0 ||
+            root_array[index].value < root_array[parent].value)
+            {
+                --index;
+            }
+            ++index;
+
+            std::swap(root_array[parent].value,root_array[index].value);
+            std::swap(root_array[parent].parent,root_array[index].parent);
+            std::swap(root_array[parent].byte,root_array[index].byte);
         }
+
+        Rebuild_tree(parent);
     }
 
 
