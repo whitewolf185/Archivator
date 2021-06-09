@@ -213,10 +213,10 @@ public:
     }
 
     void Clear(){
+        GLOB_ID = 257;
         for(auto& item : root->next){
-            for (auto& item2 : item.second->next){
-                Clear(item2.second);
-            }
+//            Clear(item.second);
+            item.second->next.clear();
         }
     }
 };

@@ -32,7 +32,7 @@ private:
 
     };
 
-    struct Block{
+    /*struct Block{
         unsigned long long info = 0;
         char count = 0;
 
@@ -40,7 +40,7 @@ private:
             info = 0;
             count = 0;
         }
-    };
+    };*/
 
 //    Block block;
     Settings setting;
@@ -142,10 +142,7 @@ public:
                 auto tmp = iteration.Get_next(c);
                 if(tmp == nullptr){
                     int id = iteration.Get_id_node();
-//                    auto info_block = add_info(id);
-//                    if (info_block != 0){
                     fout.write((const char *) &(id), sizeof(int));
-//                    }
                     iteration.Split(c,dictionary.Get_GlobID());
                     iteration = dictionary.Get_root();
                     iteration = iteration.Get_next(c);
@@ -156,13 +153,15 @@ public:
             }
 
             int id = iteration.Get_id_node();
-//            auto info_block = add_info(id, dictionary.Get_GlobID());
-//            if (info_block != 0){
             fout.write((const char *) &(id), sizeof(int));
-//            }
 
             if(i < counter){
                 end = true;
+            }
+            else{
+                dictionary.Clear();
+                int tmp = 0;
+                fout.write((const char *) &(tmp), sizeof(int));
             }
         }
 //        fout.write((const char *) &(block.info), sizeof(unsigned long long));
@@ -207,6 +206,14 @@ public:
         while(!end) {
             unsigned long long i;
             for (i = 0; fin.read(reinterpret_cast<char *>(&code), sizeof(int)) && i < counter; ++i) {
+                if(code == 0){
+                    prev = -1;
+                    globID = 257;
+                    for (int j = 257; j < dictionary.size(); ++j) {
+                        dictionary.erase(j);
+                    }
+                    continue;
+                }
                 if(prev == -1){
                     prev = code;
                     fout << dictionary.at(code);
