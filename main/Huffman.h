@@ -173,6 +173,16 @@ private:
             }
             ++index;
 
+            auto lhs = alphabet.find(root_array[index].byte);
+            auto rhs = alphabet.find(root_array[parent].byte);
+            if(lhs != alphabet.end()){
+                lhs->second = parent;
+            }
+
+            if(rhs != alphabet.end()){
+                rhs->second = index;
+            }
+
             std::swap(root_array[parent].value,root_array[index].value);
             std::swap(root_array[parent].parent,root_array[index].parent);
             std::swap(root_array[parent].byte,root_array[index].byte);
@@ -221,7 +231,7 @@ public:
             }
 
             auto index = alphabet.find(c);
-            if(index != alphabet.end()){
+            if(index == alphabet.end()){
                 auto tmp = add_info(Calculate_index((int)root_array.size()-1));
                 if(tmp != 0){
                     fout << tmp;

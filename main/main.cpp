@@ -3,7 +3,7 @@
 
 int main(int argc, char* argv[]){
 
-    LZW test("a.mp4");
+    LZW test("4.jpeg");
     Huffman huff("out.bin");
     test.Compress();
     huff.Compress("res.bin");
