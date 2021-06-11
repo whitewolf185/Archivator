@@ -54,10 +54,10 @@ private:
 
 
 // METHODES
-    unsigned long long add_info(unsigned long long id){
+    unsigned long long add_info(unsigned long long id, const int& size){
         if(id == 0){
             unsigned long long res = 0;
-            int id_digits = 1;
+            int id_digits = size;
 //            std::cout << id_digits << std::endl;
             block.count += id_digits;
 
@@ -70,7 +70,7 @@ private:
         }
 
         unsigned long long res = 0;
-        int id_digits = Digit_size(id);
+        int id_digits = size;
 //        std::cout << id_digits << std::endl;
         int variable = std::min(64-block.count,id_digits);
 
@@ -130,7 +130,7 @@ private:
 
 
 
-    unsigned long long Calculate_index(const int& index){
+    unsigned long long Calculate_index(const int& index, int& size){
         if(root_array.empty()){
             return 0;
         }
@@ -142,13 +142,14 @@ private:
             i = root_array[i].parent;
         }
 
-        std::reverse(result.begin(), result.end());
+        size = (int)result.size();
 
         unsigned long long res = 0;
 
         for (auto && j : result) {
             res = (res | j) << 1;
         }
+
         res = res >> 1;
 
         return res;
@@ -284,7 +285,7 @@ private:
         Rebuild_tree_without_alphabet(parent);
     }
 
-    /*void Print_tree(){
+    void Print_tree(){
         for (int i = 0; i < root_array.size(); ++i) {
             std::cout  << root_array[i].value << ";"; //<< root_array[i].byte << ")|";
         }
@@ -298,7 +299,7 @@ private:
             }
         }
         std::cout << std::endl;
-    }*/
+    }
 
     unsigned char Get_byte(std::ifstream& fin){
         unsigned char result = 0;
@@ -306,10 +307,11 @@ private:
         for (int i = 0; i < digits; ++i) {
             result = result ^ ((block.info & 1) << i);
             block.info = block.info >> 1;
+            --block.count;
 
-            if(block.info == 0){
+            if(block.info == 0 && block.count == 0){
                 fin.read((char *) &(block.info), sizeof(unsigned long long));
-                block.count = 0;
+                block.count = 64;
             }
         }
 
@@ -317,14 +319,15 @@ private:
     }
 
 
+
+//___________________________________________________PUBLIC_________________________________________________________
 public:
-    Huffman(const std::string& _path){
+    explicit Huffman(const std::string& _path){
         path = _path;
-        Initial_Split(END);
-        alphabet.insert(std::pair<int,int>(END,1));
-        Rebuild_tree(2);
     }
 
+//-----------------------------------------------------------------------------------
+//                    COMPRESS
     void Compress(const std::string& path_OUT){
         // ----open file to Compress from----
         std::ifstream fin;
@@ -345,18 +348,23 @@ public:
         }
         //-------
 
+        Initial_Split(END);
+        alphabet.insert(std::pair<int,int>(END,1));
+        Rebuild_tree(2);
+
         unsigned long long while_counter = 0;
         unsigned char c;
         while(fin.read((char *) &(c), sizeof (unsigned char))){
-//            std::cout << while_counter << std::endl;
             ++while_counter;
 
-//            Check_equal();
+//            Print_tree();
 
             auto index = alphabet.find(c);
             if(index == alphabet.end()){
                 //расчитываем код ART
-                auto tmp = add_info(Calculate_index((int)root_array.size()-1));
+                int size;
+                auto calc_ind = Calculate_index((int)root_array.size()-1,size);
+                auto tmp = add_info(calc_ind,size);
                 if(tmp != 0){
                     fout.write((const char *) &(tmp), sizeof (unsigned long long));
                 }
@@ -372,7 +380,9 @@ public:
                 Rebuild_tree((int)root_array.size() - 1);
             }
             else{
-                auto tmp = add_info(Calculate_index(index->second));
+                int size;
+                auto calc_ind = Calculate_index(index->second,size);
+                auto tmp = add_info(calc_ind,size);
                 if(tmp != 0){
                     fout.write((const char *) &(tmp), sizeof (unsigned long long));
                 }
@@ -382,7 +392,9 @@ public:
         }
 
         auto index = alphabet.find(END);
-        auto tmp = add_info(Calculate_index(index->second));
+        int size;
+        auto calc_ind = Calculate_index(index->second,size);
+        auto tmp = add_info(calc_ind,size);
 
         if(tmp != 0){
             fout.write((const char *) &(tmp), sizeof (unsigned long long));
@@ -399,8 +411,13 @@ public:
         fin.close();
 
     }
+//        END    COMPRESS
+//-----------------------------------------------------------------------------------
 
 
+
+//-----------------------------------------------------------------------------------
+//                DECOMPRESS
     void Decompress(const std::string& path_IN, const std::string& path_OUT){
         // ----open file to Compress from----
         std::ifstream fin;
@@ -421,21 +438,27 @@ public:
         }
         //-------
 
+//        std::cout << std::endl << "Decompress" << std::endl;
         Initial_Split(END);
+        Rebuild_tree_without_alphabet(2);
 
+        int while_counter = 0;
         while(true){
+            ++while_counter;
+//            Print_tree();
             int iterator = 0;
-            if(block.info == 0){
+            if(block.info == 0 && block.count == 0){
                 fin.read((char *) &(block.info), sizeof(unsigned long long));
-                block.count = 0;
+                block.count = 64;
             }
             while(root_array[iterator].left_child > 0){
                 iterator = (block.info & 1)? (root_array[iterator].right_child()) :
                                              (root_array[iterator].left_child);
                 block.info = block.info >> 1;
-                if(block.info == 0){
+                --block.count;
+                if(block.info == 0 && block.count == 0){
                     fin.read((char *) &(block.info), sizeof(unsigned long long));
-                    block.count = 0;
+                    block.count = 64;
                 }
             }
 
@@ -469,6 +492,7 @@ public:
         fin.close();
         fout.close();
     }
+//-----------------------------------------------------------------------------------
 
 };
 
