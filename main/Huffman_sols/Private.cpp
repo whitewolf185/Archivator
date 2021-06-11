@@ -67,7 +67,7 @@ unsigned long long Huffman::add_byte(unsigned char id){
 
     id = id >> variable;
     res = id;
-    if(res){
+    if(res || (id_digits - variable) != 0){
         std::swap(res, block.info);
         block.count = id_digits - variable;
     }

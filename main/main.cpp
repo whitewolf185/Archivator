@@ -3,14 +3,16 @@
 
 int main(int argc, char* argv[]){
 
-//    LZW test("test.txt");
-//    test.Compress(".\\resultFolder\\lzw.bin");
+    LZW test("4.jpg");
+    test.Compress(".\\resultFolder\\lzw.bin");
 
-    Huffman huff("t.txt"/*".\\resultFolder\\lzw.bin"*/);
+    Huffman huff(".\\resultFolder\\lzw.bin");
+//    Huffman huff("t.txt");
     huff.Compress(".\\resultFolder\\huff.bin");
 
-    huff.Decompress(".\\resultFolder\\huff.bin", ".\\resultFolder\\dhuff.txt");
+    huff.Decompress(".\\resultFolder\\huff.bin", ".\\resultFolder\\dhuff.bin");
+//    huff.Decompress(".\\resultFolder\\huff.bin", ".\\resultFolder\\result.txt");
 
-//    test.Decompress(".\\resultFolder\\dhuff.bin", "dlzw.txt");
+    test.Decompress(".\\resultFolder\\dhuff.bin", ".\\resultFolder\\5.jpg");
     return 0;
 }
