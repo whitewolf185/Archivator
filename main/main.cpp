@@ -3,11 +3,14 @@
 
 int main(int argc, char* argv[]){
 
-    LZW test("4.jpeg");
+    LZW test("4.jpg");
+    test.Compress("out.bin");
+
     Huffman huff("out.bin");
-    test.Compress();
     huff.Compress("res.bin");
 
-//    test.Decompress("out.bin", "out.mp4");
+    huff.Decompress("res.bin", "out.bin");
+
+//    test.Decompress("out.bin", "5.jpg");
     return 0;
 }

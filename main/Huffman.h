@@ -7,7 +7,7 @@ class Huffman {
 private:
     struct Nodes{
         int value = 1;
-        int byte;
+        short byte;
         int left_child = -2;
         int parent = -1;
 
@@ -16,9 +16,9 @@ private:
         }
     };
 
-    const int ART = -1;
-    const int END = -2;
-    const int Z = -3;
+    const short ART = -1;
+    const short END = -2;
+    const short Z = -3;
 
     struct Settings{
         enum Block_sizes{
@@ -49,7 +49,7 @@ private:
     Block block;
     std::string path;
     std::vector<Nodes> root_array;
-    std::unordered_map<unsigned char, int> alphabet;
+    std::unordered_map<int, int> alphabet;
 //-----------------------------------
 
 
@@ -57,7 +57,8 @@ private:
     unsigned long long add_info(unsigned long long id){
         if(id == 0){
             unsigned long long res = 0;
-            int id_digits = 8;
+            int id_digits = 1;
+//            std::cout << id_digits << std::endl;
             block.count += id_digits;
 
             if(block.count >= 64){
@@ -70,6 +71,44 @@ private:
 
         unsigned long long res = 0;
         int id_digits = Digit_size(id);
+//        std::cout << id_digits << std::endl;
+        int variable = std::min(64-block.count,id_digits);
+
+
+        for (int i = 0; i < variable; ++i){
+            block.info = block.info ^ (((id >> i) & 1ull) << (block.count + i));
+        }
+
+        block.count = block.count + variable;
+
+        id = id >> variable;
+        res = id;
+        if(res){
+            std::swap(res, block.info);
+            block.count = id_digits - variable;
+        }
+
+        return res;
+    }
+
+    unsigned long long add_byte(unsigned char id){
+        if(id == 0){
+            unsigned long long res = 0;
+            int id_digits = 8;
+//            std::cout << id_digits << std::endl;
+            block.count += id_digits;
+
+            if(block.count >= 64){
+                std::swap(res,block.info);
+                block.count -= 64;
+            }
+
+            return res;
+        }
+
+        unsigned long long res = 0;
+        int id_digits = 8;
+//        std::cout << id_digits << std::endl;
         int variable = std::min(64-block.count,id_digits);
 
 
@@ -115,7 +154,7 @@ private:
         return res;
     }
 
-    void Initial_Split(const int& byte){
+    void Initial_Split(const short& byte){
         Nodes node_ART;
         node_ART.parent = 0;
         node_ART.byte = ART;
@@ -133,7 +172,7 @@ private:
         root_array.push_back(node_ART);
     }
 
-    void Split_ART(const int& byte){
+    void Split_ART(const short& byte){
         int index = (int)root_array.size()-1;
 
         Nodes node;
@@ -144,6 +183,8 @@ private:
         node_ART.parent = index;
         node_ART.byte = ART;
 
+
+
         root_array[index].left_child = index + 1;
         root_array[index].byte = Z;
 
@@ -153,48 +194,135 @@ private:
     }
 
     void Rebuild_tree(int index){
-        if(index == 0){
+        if(index <= 0){
             return;
         }
 
-        int parent = root_array[index].parent;
-        ++root_array[parent].value;
-
-        if(root_array[parent - 1].value < root_array[parent].value){
+        auto swapper = index;
+        if(root_array[index - 1].value < root_array[index].value){
             /*Дохожу до элемента >= root_array[parent].value
              *Затем меняю местами элемент справа от найденного и мой
              * ссылки на родителей меняются
              * дети - остаются прежними*/
-            index = parent - 1;
-            while(index >= 0 ||
-            root_array[index].value < root_array[parent].value)
+            swapper = index - 1;
+            while(swapper >= 0 &&
+                  root_array[swapper].value < root_array[index].value)
             {
-                --index;
+                --swapper;
             }
-            ++index;
+            ++swapper;
 
-            auto lhs = alphabet.find(root_array[index].byte);
-            auto rhs = alphabet.find(root_array[parent].byte);
+//            if(index != root_array[swapper].parent && swapper != root_array[swapper].parent){
+            auto lhs = alphabet.find(root_array[swapper].byte);
+            auto rhs = alphabet.find(root_array[index].byte);
             if(lhs != alphabet.end()){
-                lhs->second = parent;
+                lhs->second = index;
             }
 
             if(rhs != alphabet.end()){
-                rhs->second = index;
+                rhs->second = swapper;
             }
 
-            std::swap(root_array[parent].value,root_array[index].value);
-            std::swap(root_array[parent].parent,root_array[index].parent);
-            std::swap(root_array[parent].byte,root_array[index].byte);
+            std::swap(root_array[index], root_array[swapper]);
+            std::swap(root_array[index].parent, root_array[swapper].parent);
+
+            //change children's parent
+            if (root_array[index].left_child > 0){
+                root_array[root_array[index].left_child].parent = index;
+                root_array[root_array[index].right_child()].parent = index;
+            }
+            if (root_array[swapper].left_child > 0){
+                root_array[root_array[swapper].left_child].parent = swapper;
+                root_array[root_array[swapper].right_child()].parent = swapper;
+                }
+//            }
         }
+
+        int parent = root_array[swapper].parent;
+        ++root_array[parent].value;
 
         Rebuild_tree(parent);
     }
 
+    void Rebuild_tree_without_alphabet(int index){
+        if(index <= 0){
+            return;
+        }
+
+        auto swapper = index;
+        if(root_array[index - 1].value < root_array[index].value){
+            /*Дохожу до элемента >= root_array[parent].value
+             *Затем меняю местами элемент справа от найденного и мой
+             * ссылки на родителей меняются
+             * дети - остаются прежними*/
+            swapper = index - 1;
+            while(swapper >= 0 &&
+                  root_array[swapper].value < root_array[index].value)
+            {
+                --swapper;
+            }
+            ++swapper;
+
+
+            std::swap(root_array[index], root_array[swapper]);
+            std::swap(root_array[index].parent, root_array[swapper].parent);
+
+            //change children's parent
+            if (root_array[index].left_child > 0){
+                root_array[root_array[index].left_child].parent = index;
+                root_array[root_array[index].right_child()].parent = index;
+            }
+            if (root_array[swapper].left_child > 0){
+                root_array[root_array[swapper].left_child].parent = swapper;
+                root_array[root_array[swapper].right_child()].parent = swapper;
+            }
+        }
+
+        int parent = root_array[swapper].parent;
+        ++root_array[parent].value;
+
+        Rebuild_tree_without_alphabet(parent);
+    }
+
+    /*void Print_tree(){
+        for (int i = 0; i < root_array.size(); ++i) {
+            std::cout  << root_array[i].value << ";"; //<< root_array[i].byte << ")|";
+        }
+        std::cout << std::endl;
+    }
+
+    void Check_equal(){
+        for (int i = 0; i < root_array.size(); ++i) {
+            if(root_array[i].parent == root_array[i].left_child){
+                std::cout << "here comes the mistake " << i << "|";
+            }
+        }
+        std::cout << std::endl;
+    }*/
+
+    unsigned char Get_byte(std::ifstream& fin){
+        unsigned char result = 0;
+        int digits = 8;
+        for (int i = 0; i < digits; ++i) {
+            result = result ^ ((block.info & 1) << i);
+            block.info = block.info >> 1;
+
+            if(block.info == 0){
+                fin.read((char *) &(block.info), sizeof(unsigned long long));
+                block.count = 0;
+            }
+        }
+
+        return result;
+    }
+
 
 public:
-    explicit Huffman(const std::string& _path){
+    Huffman(const std::string& _path){
         path = _path;
+        Initial_Split(END);
+        alphabet.insert(std::pair<int,int>(END,1));
+        Rebuild_tree(2);
     }
 
     void Compress(const std::string& path_OUT){
@@ -217,46 +345,129 @@ public:
         }
         //-------
 
+        unsigned long long while_counter = 0;
         unsigned char c;
         while(fin.read((char *) &(c), sizeof (unsigned char))){
+//            std::cout << while_counter << std::endl;
+            ++while_counter;
 
-            if(root_array.empty()){
-                auto tmp = add_info((unsigned long long)c);
-                if(tmp != 0){
-                    fout << tmp;
-                }
-                Initial_Split(c);
-                alphabet.insert(std::pair<unsigned char, int> (c,1));
-                Rebuild_tree(2);
-            }
+//            Check_equal();
 
             auto index = alphabet.find(c);
             if(index == alphabet.end()){
+                //расчитываем код ART
                 auto tmp = add_info(Calculate_index((int)root_array.size()-1));
                 if(tmp != 0){
-                    fout << tmp;
+                    fout.write((const char *) &(tmp), sizeof (unsigned long long));
                 }
 
-                tmp = add_info(Calculate_index((int)root_array.size()-1));
+                //добавляем код элемента
+                tmp = add_byte(c);
                 if(tmp != 0){
-                    fout << tmp;
+                    fout.write((const char *) &(tmp), sizeof (unsigned long long));
                 }
 
                 Split_ART(c);
-                alphabet.insert(std::pair<unsigned char,int>(c,root_array.size()-2));
+                alphabet.insert(std::pair<int,int>(c,root_array.size()-2));
                 Rebuild_tree((int)root_array.size() - 1);
             }
             else{
                 auto tmp = add_info(Calculate_index(index->second));
                 if(tmp != 0){
-                    fout << tmp;
+                    fout.write((const char *) &(tmp), sizeof (unsigned long long));
                 }
-                ++root_array[index->second].value;
                 Rebuild_tree(index->second);
             }
 
         }
 
+        auto index = alphabet.find(END);
+        auto tmp = add_info(Calculate_index(index->second));
+
+        if(tmp != 0){
+            fout.write((const char *) &(tmp), sizeof (unsigned long long));
+            fout.write((const char *) &(block.info), sizeof (unsigned long long));
+        }
+        else{
+            fout.write((const char *) &(block.info), sizeof (unsigned long long));
+        }
+
+        block.Clear();
+        alphabet.clear();
+        root_array.clear();
+        fout.close();
+        fin.close();
+
+    }
+
+
+    void Decompress(const std::string& path_IN, const std::string& path_OUT){
+        // ----open file to Compress from----
+        std::ifstream fin;
+        fin.open(path_IN, std::ios::binary);
+
+        if(!fin.is_open()){
+            throw std::runtime_error("Cannot open file");
+        }
+        //-------
+
+
+        // ----open file to Compress in----
+        std::ofstream fout;
+        fout.open(path_OUT, std::ios::binary);
+
+        if(!fout.is_open()){
+            throw std::runtime_error("Cannot open file");
+        }
+        //-------
+
+        Initial_Split(END);
+
+        while(true){
+            int iterator = 0;
+            if(block.info == 0){
+                fin.read((char *) &(block.info), sizeof(unsigned long long));
+                block.count = 0;
+            }
+            while(root_array[iterator].left_child > 0){
+                iterator = (block.info & 1)? (root_array[iterator].right_child()) :
+                                             (root_array[iterator].left_child);
+                block.info = block.info >> 1;
+                if(block.info == 0){
+                    fin.read((char *) &(block.info), sizeof(unsigned long long));
+                    block.count = 0;
+                }
+            }
+
+            if(root_array[iterator].byte == Z){
+                throw std::logic_error("U've made a mistake. Z can not be leaf");
+            }
+
+            if(root_array[iterator].byte == END){
+                break;
+            }
+
+            if(root_array[iterator].byte == ART){
+                unsigned char byte;
+                byte = Get_byte(fin);
+                fout.write((const char *) &(byte), sizeof(unsigned char));
+                Split_ART(byte);
+                Rebuild_tree_without_alphabet((int)root_array.size() - 1);
+            }
+            else{
+                unsigned char byte;
+                byte = root_array[iterator].byte;
+                fout.write((const char *) &(byte), sizeof(unsigned char));
+                Rebuild_tree_without_alphabet(iterator);
+            }
+
+        }
+
+        block.Clear();
+        alphabet.clear();
+        root_array.clear();
+        fin.close();
+        fout.close();
     }
 
 };

@@ -105,7 +105,7 @@ public:
         path = std::move(_path);
     }
 
-    void Compress(){
+    void Compress(const std::string& path_OUT){
         // ----open file to Compress from----
         std::ifstream fin;
         fin.open(path, std::ios::binary);
@@ -118,7 +118,7 @@ public:
 
         // ----open file to Compress in----
         std::ofstream fout;
-        fout.open("out.bin", std::ios::binary);
+        fout.open(path_OUT, std::ios::binary);
 
         if(!fout.is_open()){
             throw std::runtime_error("Cannot open file");
