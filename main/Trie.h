@@ -212,6 +212,10 @@ public:
         return root;
     }
 
+    void Delete(){
+        Deleter(root);
+    }
+
     void Clear(){
         GLOB_ID = 257;
         for(auto& item : root->next){

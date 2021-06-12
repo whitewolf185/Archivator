@@ -128,10 +128,10 @@ public:
         alphabet.insert(std::pair<int,int>(END,1));
         Rebuild_tree(2);
 
-        unsigned long long while_counter = 0;
+//        unsigned long long while_counter = 0;
         unsigned char c;
         while(fin.read((char *) &(c), sizeof (unsigned char))){
-            ++while_counter;
+//            ++while_counter;
 
 //            Print_tree();
 
@@ -218,9 +218,9 @@ public:
         Initial_Split(END);
         Rebuild_tree_without_alphabet(2);
 
-        int while_counter = 0;
+//        int while_counter = 0;
         while(true){
-            ++while_counter;
+//            ++while_counter;
 //            Print_tree();
             int iterator = 0;
             if(block.info == 0 && block.count == 0){
