@@ -1,6 +1,6 @@
-#include "../LZW.h"
+#include "../Archivator.h"
 
-unsigned long long LZW::add_info(unsigned long long id){
+unsigned long long Archivator::LZW::add_info(unsigned long long id){
     if(id == 0){
         unsigned long long res = 0;
         int id_digits = setting.sizeBit;
@@ -37,7 +37,7 @@ unsigned long long LZW::add_info(unsigned long long id){
     return res;
 }
 
-int LZW::get_info(std::ifstream& fin) {
+int Archivator::LZW::get_info(std::ifstream& fin) {
     int result = 0;
     int digits = setting.sizeBit;
     for (int i = 0; i < digits; ++i) {

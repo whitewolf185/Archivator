@@ -1,7 +1,6 @@
-#include "../Huffman.h"
-#include <iostream>
+#include "../Archivator.h"
 
-unsigned long long Huffman::add_info(unsigned long long id, const int& size){
+unsigned long long Archivator::Huffman::add_info(unsigned long long id, const int& size){
     if(id == 0){
         unsigned long long res = 0;
         int id_digits = size;
@@ -38,7 +37,7 @@ unsigned long long Huffman::add_info(unsigned long long id, const int& size){
     return res;
 }
 
-unsigned long long Huffman::add_byte(unsigned char id){
+unsigned long long Archivator::Huffman::add_byte(unsigned char id){
     if(id == 0){
         unsigned long long res = 0;
         int id_digits = 8;
@@ -75,7 +74,7 @@ unsigned long long Huffman::add_byte(unsigned char id){
     return res;
 }
 
-unsigned long long Huffman::Calculate_index(const int& index, int& size){
+unsigned long long Archivator::Huffman::Calculate_index(const int& index, int& size){
     if(root_array.empty()){
         return 0;
     }
@@ -102,7 +101,7 @@ unsigned long long Huffman::Calculate_index(const int& index, int& size){
 
 
 
-void Huffman::Initial_Split(const short& byte){
+void Archivator::Huffman::Initial_Split(const short& byte){
     Nodes node_ART;
     node_ART.parent = 0;
     node_ART.byte = ART;
@@ -120,7 +119,7 @@ void Huffman::Initial_Split(const short& byte){
     root_array.push_back(node_ART);
 }
 
-void Huffman::Split_ART(const short& byte){
+void Archivator::Huffman::Split_ART(const short& byte){
     int index = (int)root_array.size()-1;
 
     Nodes node;
@@ -141,7 +140,7 @@ void Huffman::Split_ART(const short& byte){
     root_array.push_back(node_ART);
 }
 
-void Huffman::Rebuild_tree(int index){
+void Archivator::Huffman::Rebuild_tree(int index){
     if(index <= 0){
         return;
     }
@@ -192,7 +191,7 @@ void Huffman::Rebuild_tree(int index){
     Rebuild_tree(parent);
 }
 
-void Huffman::Rebuild_tree_without_alphabet(int index){
+void Archivator::Huffman::Rebuild_tree_without_alphabet(int index){
     if(index <= 0){
         return;
     }
@@ -232,14 +231,14 @@ void Huffman::Rebuild_tree_without_alphabet(int index){
     Rebuild_tree_without_alphabet(parent);
 }
 
-[[maybe_unused]] void Huffman::Print_tree(){
+[[maybe_unused]] void Archivator::Huffman::Print_tree(){
     for (auto & i : root_array) {
         std::cout  << i.value << ";"; //<< root_array[i].byte << ")|";
     }
     std::cout << std::endl;
 }
 
-[[maybe_unused]] void Huffman::Check_equal(){
+[[maybe_unused]] void Archivator::Huffman::Check_equal(){
     for (int i = 0; i < root_array.size(); ++i) {
         if(root_array[i].parent == root_array[i].left_child){
             std::cout << "here comes the mistake " << i << "|";

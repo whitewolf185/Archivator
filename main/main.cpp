@@ -1,18 +1,12 @@
-#include "LZW.h"
-#include "Huffman.h"
+#include "Archivator.h"
 
 int main(int argc, char* argv[]){
 
-    LZW test("5.jpg");
-    test.Compress(".\\resultFolder\\lzw.bin");
+    Settings settings;
 
-    Huffman huff(".\\resultFolder\\lzw.bin");
-//    Huffman huff("4.jpg");
-    huff.Compress(".\\resultFolder\\huff.bin");
+    Archivator arc("4.jpg", settings);
+    arc.Compress("result.bin");
+    arc.Decompress("result.bin", "6.jpg");
 
-    huff.Decompress(".\\resultFolder\\huff.bin", ".\\resultFolder\\dhuff.bin");
-//    huff.Decompress(".\\resultFolder\\huff.bin", ".\\resultFolder\\result.jpg");
-
-    test.Decompress(".\\resultFolder\\dhuff.bin", ".\\resultFolder\\result.jpg");
     return 0;
 }
