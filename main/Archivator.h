@@ -10,7 +10,6 @@
 #include <algorithm>
 #include <string>
 #include <iostream>
-#include <dir.h>
 
 #define MY 12
 

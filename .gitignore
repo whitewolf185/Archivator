@@ -4,3 +4,4 @@ cmake*/
 *test*
 *.rar
 out*
+*.json

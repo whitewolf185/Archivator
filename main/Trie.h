@@ -35,7 +35,6 @@ public:
     public:
         Iterator(Nodes* _node){
             node = _node;
-
         }
         ~Iterator(){}
 
