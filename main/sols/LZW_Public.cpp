@@ -6,7 +6,7 @@ void Archivator::LZW::Compress(const std::string& path_OUT){
     fin.open(path, std::ios::binary);
 
     if(!fin.is_open()){
-        throw std::runtime_error("Cannot open file");
+        throw std::runtime_error("Cannot open file " + path);
     }
     //-------
 
@@ -16,7 +16,7 @@ void Archivator::LZW::Compress(const std::string& path_OUT){
     fout.open(path_OUT, std::ios::binary);
 
     if(!fout.is_open()){
-        throw std::runtime_error("Cannot open file");
+        throw std::runtime_error("Cannot open file " + path_OUT);
     }
     //-------
 
@@ -81,7 +81,7 @@ void Archivator::LZW::Decompress (const std::string& pathIN, const std::string& 
     fin.open(pathIN, std::ios::binary);
 
     if(!fin.is_open()){
-        throw std::runtime_error("Cannot open file");
+        throw std::runtime_error("Cannot open file " + pathIN);
     }
     //-------
 
@@ -90,7 +90,7 @@ void Archivator::LZW::Decompress (const std::string& pathIN, const std::string& 
     fout.open(pathOUT, std::ios::binary);
 
     if(!fout.is_open()){
-        throw std::runtime_error("Cannot open file");
+        throw std::runtime_error("Cannot open file " + pathOUT);
     }
     //-------
 

@@ -159,7 +159,6 @@ void Archivator::Huffman::Rebuild_tree(int index){
         }
         ++swapper;
 
-//            if(index != root_array[swapper].parent && swapper != root_array[swapper].parent){
         auto lhs = alphabet.find(root_array[swapper].byte);
         auto rhs = alphabet.find(root_array[index].byte);
         if(lhs != alphabet.end()){

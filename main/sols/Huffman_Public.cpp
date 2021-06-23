@@ -6,7 +6,7 @@ void Archivator::Huffman::Compress(const std::string& path_OUT){
     fin.open(path, std::ios::binary);
 
     if(!fin.is_open()){
-        throw std::runtime_error("Cannot open file");
+        throw std::runtime_error("Cannot open file " + path);
     }
     //-------
 
@@ -16,7 +16,7 @@ void Archivator::Huffman::Compress(const std::string& path_OUT){
     fout.open(path_OUT, std::ios::binary);
 
     if(!fout.is_open()){
-        throw std::runtime_error("Cannot open file");
+        throw std::runtime_error("Cannot open file " + path_OUT);
     }
     //-------
 
@@ -98,7 +98,7 @@ void Archivator::Huffman::Decompress(const std::string& path_IN, const std::stri
     fin.open(path_IN, std::ios::binary);
 
     if(!fin.is_open()){
-        throw std::runtime_error("Cannot open file");
+        throw std::runtime_error("Cannot open file " + path_IN);
     }
     //-------
 
@@ -108,7 +108,7 @@ void Archivator::Huffman::Decompress(const std::string& path_IN, const std::stri
     fout.open(path_OUT, std::ios::binary);
 
     if(!fout.is_open()){
-        throw std::runtime_error("Cannot open file");
+        throw std::runtime_error("Cannot open file " + path_OUT);
     }
     //-------
 

@@ -59,7 +59,12 @@ struct Settings{
     }
 
     bool write_output_into_stdout = false;
-    bool donot_delete = true;
+    bool donot_delete = false;
+
+    bool decompress = false;
+    bool show_metaData = false;
+    bool test_unityFile = false;
+    bool recursive = false;
 
 };
 
@@ -84,6 +89,10 @@ public:
 
     Archivator(const std::string& _path, const Settings& _settings){
         main_Path = _path;
+        sets = _settings;
+    }
+
+    explicit Archivator(const Settings& _settings){
         sets = _settings;
     }
 
@@ -204,13 +213,12 @@ public:
     }
 
     void Compress(const std::string& path_OUT){
-        mkdir("tmp");
         LZW lzw(main_Path, sets);
         lzw.Compress("./tmp/huff.bin");
         Huffman huffman("./tmp/huff.bin");
         huffman.Compress(path_OUT);
         std::remove("./tmp/huff.bin");
-        rmdir("tmp");
+
 
         if(!sets.donot_delete){
             std::remove(main_Path.c_str());
@@ -219,13 +227,24 @@ public:
     }
 
     void Decompress(const std::string& path_IN, const std::string& path_OUT){
-        mkdir("tmp");
+
         LZW lzw(sets);
         Huffman huffman;
         huffman.Decompress(path_IN, "./tmp/lzw.bin");
         lzw.Decompress("./tmp/lzw.bin", path_OUT);
         std::remove("./tmp/lzw.bin");
-        rmdir("tmp");
+
+
+        if(sets.write_output_into_stdout){
+            std::ifstream fin;
+            fin.open(path_OUT);
+            char c;
+            while (fin.read((char *) &(c), sizeof (char))){
+                std::cout << c;
+            }
+
+            std::remove(path_OUT.c_str());
+        }
 
         if(!sets.donot_delete){
             std::remove(path_IN.c_str());
